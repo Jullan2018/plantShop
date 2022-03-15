@@ -1,9 +1,11 @@
-import * as React from 'react';
-import { StyleSheet, Text, View,Button,TouchableOpacity } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import { StyleSheet, Text, View,Button,TouchableOpacity,TextInput,Image, FlatList } from 'react-native';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import home from './components/Home/home';
+import shop from './components/Shop/shop';
+import contact from './components/contact/contact';
 import ImageBackground from 'react-native/Libraries/Image/ImageBackground';
 
 const MyTheme = {
@@ -38,27 +40,122 @@ function HomeScreen({ navigation }) {
     </View>
   );
 }
-
-function ShopScreen({ navigation }) {
+const PRODUCTS = [
+  {
+    id: 1,
+    name: 'Monster Deliciosa',
+    image:require("./assets/image/product-1.jpg"),
+    price:65.00,
+  },
+  {
+    id: 2,
+    name: 'Golden Pothos',
+    image:require("./assets/image/product-2.jpg"),
+    price:35.00,
+  },
+  {
+    id: 3,
+    name: 'Wide range of Fittonia',
+    image:require("./assets/image/product-3.jpg"),
+    price:15.00,
+  },
+  {
+    id: 4,
+    name: 'Watermelon Peperomia',
+    image:require("./assets/image/product-4.jpg"),
+    price:15.00,
+  },
+  {
+    id: 5,
+    name: 'Bunch of Roses',
+    image:require("./assets/image/product-5.jpg"),
+    price:25.00,
+  },
+]
+export function getProducts() {
+  return PRODUCTS;
+}
+export function getProduct(id) {
+  return PRODUCTS.find((product) => (product.id == id));
+}
+export function Product({name, price, image}) {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Shop Screen</Text>
-      <Button
-        title="Back to Home..."
-        onPress={() => navigation.navigate('Home')}
+  <TouchableOpacity style={shop.card}>
+  <Image
+    style={shop.thumb}
+    source={image} />
+  <View style={shop.infoContainer}>
+    <Text style={shop.name}>{name}</Text>
+    <Text style={shop.price}>$ {price} NZD</Text>
+  </View>
+  </TouchableOpacity>
+  )
+}
+export function ProductsList ({navigation}) {
+  function renderProduct({item: product}) {
+      return (
+        <Product {...product} 
+        onPress={() => {
+          navigation.navigate('ProductDetails', {
+            productId: product.id,
+          });
+        }}
+        />
+      );
+    }
+  
+    const [products, setProducts] = useState([]);
+  
+    useEffect(() => {
+      setProducts(getProducts());
+    });
+  
+    return (
+      <FlatList
+        style={styles.productsList}
+        contentContainerStyle={styles.productsListContainer}
+        keyExtractor={(item) => item.id.toString()}
+        data={products}
+        renderItem={renderProduct}
       />
+    );
+  }
+
+function ShopScreen({ navigation, item: product}) {
+  return (
+    <View style={shop.container}>
+    <ProductsList/>
+    <Button
+        title="Back to Home..."
+        onPress={() => navigation.navigate('Home')} />
     </View>
   );
 }
 
 function ContactScreen({ navigation }) {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Contact</Text>
-      <Button
-        title="Back to Home..."
-        onPress={() => navigation.navigate('Home')}
-      />
+    <View style={contact.container}>
+    <ImageBackground style={contact.image} source ={require('./assets/image/contact-bg.jpg')}/>
+    <View style={contact.content}>
+      <Text style={contact.heading}>CONTACT US</Text>
+      <View style={contact.form}>
+        <TextInput style={contact.email}
+          placeholder="Enter your e-mail"/>
+        <TextInput style={contact.message}
+          placeholder="Enter your message..."/>
+           <TouchableOpacity  onPress={() => console.log("Thanks")}> 
+          <Text style = {contact.button}>
+              SUBMIT
+          </Text>
+        </TouchableOpacity>
+
+      </View>
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+       <Text style = {contact.button}>
+              Return to Home
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
